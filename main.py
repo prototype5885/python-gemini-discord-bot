@@ -171,7 +171,7 @@ class MyClient(discord.Client):
 
             mentioned: bool = user_message.startswith(f"<@{self.user.id}>")
             if mentioned:
-                user_message = user_message.replace(f"<@{self.user.id}> ", "").strip()
+                user_message = user_message.replace(f"<@{self.user.id}>", "").strip()
 
             question_mark: bool = user_message.startswith("? ")
             if question_mark:
