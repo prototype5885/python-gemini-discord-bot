@@ -230,6 +230,28 @@ class MyClient(discord.Client):
                 self.chat.get_history().append(
                     types.Content(role="model", parts=[types.Part(response.text)])
                 )
+            elif user_message.startswith(
+                ("https://www.youtube.com/", "https://youtu.be")
+            ):
+                link, text = user_message.split(" ", 1)
+
+                response = self.client.models.generate_content(
+                    model=MODEL_NAME,
+                    contents=types.Content(
+                        parts=[
+                            types.Part(file_data=types.FileData(file_uri=link)),
+                            types.Part(text=text),
+                        ]
+                    ),
+                )
+
+                # add this response to the multi turn chat history manually
+                self.chat.get_history().append(
+                    types.UserContent(parts=[types.Part(user_message)])
+                )
+                self.chat.get_history().append(
+                    types.Content(role="model", parts=[types.Part(response.text)])
+                )
             else:
                 response = self.chat.send_message(user_message)
 
