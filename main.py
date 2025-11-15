@@ -9,7 +9,7 @@ import requests
 load_dotenv()
 
 MODEL_NAME = "gemini-2.5-flash"
-MAX_HISTORY_SIZE = 12
+MAX_HISTORY_SIZE = 10
 SAFETY_SETTINGS = [
     types.SafetySetting(
         category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -205,10 +205,11 @@ class MyClient(discord.Client):
                 self.chat.get_history().append(
                     types.Content(role="model", parts=[types.Part(response.text)])
                 )
-                self.chat = trim_chat(self.client, self.chat)
             else:
-                self.chat = trim_chat(self.client, self.chat)
                 response = self.chat.send_message(user_message)
+
+            # delete older messages
+            self.chat = trim_chat(self.client, self.chat)
 
             # forward gemini's response to discord
             CHUNK_SIZE = 2000
