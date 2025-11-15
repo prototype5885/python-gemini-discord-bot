@@ -29,7 +29,7 @@ SAFETY_SETTINGS = [
     ),
 ]
 
-DEFAULT_PROMPT = "answer under 1750 characters"
+DEFAULT_PROMPT = "short to medium sized answer"
 
 
 def new_api_key(current_api_key, api_keys):
