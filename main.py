@@ -9,7 +9,7 @@ import requests
 
 load_dotenv()
 
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-2.5-flash-lite"
 MAX_HISTORY_SIZE = 20
 SAFETY_SETTINGS = [
     types.SafetySetting(
