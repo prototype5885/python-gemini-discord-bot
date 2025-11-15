@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import discord
 from google import genai
 from google.genai import types
+import requests
 
 load_dotenv()
 
@@ -182,16 +183,34 @@ class MyClient(discord.Client):
 
             await message.channel.typing()
 
-            # create new chat deleting old messages
-            self.chat = trim_chat(self.client, self.chat)
-
             # add prompt after message
             user_message = f"{user_message} [{self.prompt}]"
 
-            # send message to gemini
-            response = self.chat.send_message(user_message)
+            if len(message.attachments) > 0:
+                # download attachment
+                image_bytes = requests.get(message.attachments[0].url).content
+                image = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
 
-            # forward response to discord
+                # send in isolated conversation since can't send image in multi turn conversation
+                client = genai.Client(api_key=self.current_api_key)
+                response = client.models.generate_content(
+                    model=MODEL_NAME,
+                    contents=[user_message, image],
+                )
+
+                # add this response to the multi turn chat history manually
+                self.chat.get_history().append(
+                    types.UserContent(parts=[types.Part(user_message)])
+                )
+                self.chat.get_history().append(
+                    types.Content(role="model", parts=[types.Part(response.text)])
+                )
+                self.chat = trim_chat(self.client, self.chat)
+            else:
+                self.chat = trim_chat(self.client, self.chat)
+                response = self.chat.send_message(user_message)
+
+            # forward gemini's response to discord
             CHUNK_SIZE = 2000
             for i in range(0, len(response.text), CHUNK_SIZE):
                 chunk = response.text[i : i + CHUNK_SIZE]
