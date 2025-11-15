@@ -124,7 +124,7 @@ class MyClient(discord.Client):
                 await message.reply(response, mention_author=True)
                 return
 
-            if user_message == "!new":
+            if user_message == "!new" or user_message == "!resetgemini":
                 print("Reseting history...")
                 self.prompt = DEFAULT_PROMPT
                 self.chat = new_chat(self.client)
