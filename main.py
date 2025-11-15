@@ -30,6 +30,26 @@ SAFETY_SETTINGS = [
     ),
 ]
 
+VIDEO_MIMES = (
+    "video/mp4",
+    "video/mpeg",
+    "video/mov",
+    "video/avi",
+    "video/x-flv",
+    "video/mpg",
+    "video/webm",
+    "video/wmv",
+    "video/3gpp",
+)
+
+IMAGE_MIMES = (
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/heic",
+    "image/heif",
+)
+
 DEFAULT_PROMPT = "short to medium sized answer"
 
 
@@ -213,15 +233,41 @@ class MyClient(discord.Client):
             user_message = f"{user_message} [{self.prompt}]"
 
             if len(message.attachments) > 0:
-                # download attachment
-                image_bytes = requests.get(message.attachments[0].url).content
-                image = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
+                mime = message.attachments[0].content_type
 
-                # send in isolated conversation since can't send image in multi turn conversation
-                response = self.client.models.generate_content(
-                    model=MODEL_NAME,
-                    contents=[user_message, image],
-                )
+                if mime in IMAGE_MIMES:  # if picture
+                    # download attachment
+                    image_bytes = requests.get(message.attachments[0].url).content
+
+                    # send in isolated conversation since can't send image in multi turn conversation
+                    response = self.client.models.generate_content(
+                        model=MODEL_NAME,
+                        contents=[
+                            user_message,
+                            types.Part.from_bytes(data=image_bytes, mime_type=mime),
+                        ],
+                    )
+
+                elif mime in VIDEO_MIMES:  # if video
+                    # download attachment
+                    video_bytes = requests.get(message.attachments[0].url).content
+
+                    response = self.client.models.generate_content(
+                        model=MODEL_NAME,
+                        contents=types.Content(
+                            parts=[
+                                types.Part(
+                                    inline_data=types.Blob(
+                                        data=video_bytes, mime_type=mime
+                                    )
+                                ),
+                                types.Part(text=user_message),
+                            ]
+                        ),
+                    )
+
+                else:
+                    raise ValueError(f"Unsupported attachment type {mime}")
 
                 # add this response to the multi turn chat history manually
                 self.chat.get_history().append(
