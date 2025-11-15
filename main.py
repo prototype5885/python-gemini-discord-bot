@@ -93,6 +93,9 @@ class MyClient(discord.Client):
 
     async def on_ready(self):
         print(f"Logged on as {self.user}!")
+        await self.change_presence(
+            status=discord.Status.online, activity=discord.Game("Genshin Impact")
+        )
 
     async def on_message(self, message):
         try:
