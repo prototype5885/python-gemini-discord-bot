@@ -5,6 +5,7 @@ import discord
 from google import genai
 from google.genai import types
 import requests
+# from threading import Timer
 
 load_dotenv()
 
@@ -90,6 +91,8 @@ class MyClient(discord.Client):
     current_api_key = api_keys[0]
     client = new_client(current_api_key)
     chat = new_chat(client)
+
+    # reset_timer = None
 
     async def on_ready(self):
         print(f"Logged on as {self.user}!")
@@ -191,6 +194,18 @@ class MyClient(discord.Client):
 
             if not mentioned and not question_mark and not reply:
                 return
+
+            # def reset():
+            #     print("Reset timer finished, clearing history...")
+            #     self.prompt = DEFAULT_PROMPT
+            #     self.chat = new_chat(self.client)
+
+            # if self.reset_timer:
+            #     self.reset_timer.cancel()
+            #     self.reset_timer = None
+
+            # self.reset_timer = Timer(7200, reset)
+            # self.reset_timer.start()
 
             await message.channel.typing()
 
