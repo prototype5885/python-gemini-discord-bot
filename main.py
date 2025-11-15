@@ -178,7 +178,15 @@ class MyClient(discord.Client):
             if question_mark:
                 user_message = user_message.replace("?", "", 1).strip()
 
-            if not mentioned and not question_mark:
+            reply: bool = False
+            if message.reference:
+                replied_message = await message.channel.fetch_message(
+                    message.reference.message_id
+                )
+                if replied_message.author.id == self.user.id:
+                    reply = True
+
+            if not mentioned and not question_mark and not reply:
                 return
 
             await message.channel.typing()
