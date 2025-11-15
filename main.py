@@ -217,14 +217,34 @@ class MyClient(discord.Client):
                 await message.reply(chunk, mention_author=True)
 
         except Exception as e:
-            error_text = str(e)
-            print(error_text)
-            error_text = error_text.replace(self.current_api_key, "GEMINI_TOKEN_HERE")
-            error_text = error_text.replace(
-                os.getenv("DISCORD_TOKEN"), "DISCORD_TOKEN_HERE"
-            )
             try:
-                await message.reply(error_text, mention_author=True)
+                error_text = str(e)
+                error_text = error_text.replace(
+                    self.current_api_key, "GEMINI_TOKEN_HERE"
+                )
+                error_text = error_text.replace(
+                    os.getenv("DISCORD_TOKEN"), "DISCORD_TOKEN_HERE"
+                )
+                print(error_text)
+
+                if "429 RESOURCE_EXHAUSTED" in error_text:
+                    # change api key
+                    self.current_api_key = new_api_key(
+                        self.current_api_key, self.api_keys
+                    )
+
+                    # set new api key to client
+                    self.client = new_client(self.current_api_key)
+
+                    # workaround as new client requires new chat
+                    self.chat = trim_chat(self.client, self.chat)
+
+                    await message.reply(
+                        "Api key limit reached, changed to new, continue spamming",
+                        mention_author=True,
+                    )
+                else:
+                    await message.reply(error_text, mention_author=True)
             except Exception as discord_error:
                 print(discord_error)
 
