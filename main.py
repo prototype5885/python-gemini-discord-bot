@@ -122,8 +122,8 @@ class MyClient(discord.Client):
 
                 response = ""
                 for msg in self.chat.get_history():
-                    text = msg.parts[0].text[:128].replace("\n", " ")
-                    if len(text) >= 128:
+                    text = msg.parts[0].text[:64].replace("\n", " ")
+                    if len(text) >= 64:
                         text += "..."
                     response += f"{msg.role}: {text}\n\n"
 
