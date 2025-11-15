@@ -192,8 +192,7 @@ class MyClient(discord.Client):
                 image = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
 
                 # send in isolated conversation since can't send image in multi turn conversation
-                client = genai.Client(api_key=self.current_api_key)
-                response = client.models.generate_content(
+                response = self.client.models.generate_content(
                     model=MODEL_NAME,
                     contents=[user_message, image],
                 )
