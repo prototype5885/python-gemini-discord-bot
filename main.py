@@ -148,7 +148,7 @@ class MyClient(discord.Client):
                 await message.reply(response, mention_author=True)
                 return
 
-            if user_message == "!new" or user_message == "!resetgemini":
+            if user_message in ("!new", "!neu", "!resetgemini"):
                 print("Reseting history...")
                 self.prompt = DEFAULT_PROMPT
                 self.chat = new_chat(self.client)
@@ -165,7 +165,7 @@ class MyClient(discord.Client):
                 print(f"Prompt was set to {self.prompt}")
                 return
 
-            if user_message == "!undo" or user_message == "!revert":
+            if user_message in ("!undo", "!revert"):
                 print("Deleting last 2 messages...")
                 if len(self.chat.get_history()) == 0:
                     await message.reply(
