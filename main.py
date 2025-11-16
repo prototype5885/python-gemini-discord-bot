@@ -235,6 +235,9 @@ class MyClient(discord.Client):
             if len(message.attachments) > 0:
                 mime = message.attachments[0].content_type
 
+                if mime == "video/quicktime":
+                    mime = "video/mov"
+
                 if mime in IMAGE_MIMES:  # if picture
                     # download attachment
                     image_bytes = requests.get(message.attachments[0].url).content
