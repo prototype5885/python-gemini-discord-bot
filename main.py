@@ -50,6 +50,12 @@ IMAGE_MIMES = (
     "image/heif",
 )
 
+DEFUALT_CONFIG = types.GenerateContentConfig(
+    safety_settings=SAFETY_SETTINGS,
+    thinking_config=types.ThinkingConfig(thinking_budget=0),
+)
+
+
 DEFAULT_PROMPT = "short to medium sized answer"
 
 
@@ -67,20 +73,14 @@ def new_client(new_api_key):
 def new_chat(client):
     return client.chats.create(
         model=MODEL_NAME,
-        config=types.GenerateContentConfig(
-            safety_settings=SAFETY_SETTINGS,
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
-        ),
+        config=DEFUALT_CONFIG,
     )
 
 
 def trim_chat(client, chat):
     return client.chats.create(
         model=MODEL_NAME,
-        config=types.GenerateContentConfig(
-            safety_settings=SAFETY_SETTINGS,
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
-        ),
+        config=DEFUALT_CONFIG,
         history=chat.get_history()[-MAX_HISTORY_SIZE:],
     )
 
@@ -88,10 +88,7 @@ def trim_chat(client, chat):
 def undo_message(client, chat):
     return client.chats.create(
         model=MODEL_NAME,
-        config=types.GenerateContentConfig(
-            safety_settings=SAFETY_SETTINGS,
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
-        ),
+        config=DEFUALT_CONFIG,
         history=chat.get_history()[:-2],
     )
 
@@ -249,6 +246,7 @@ class MyClient(discord.Client):
                             user_message,
                             types.Part.from_bytes(data=image_bytes, mime_type=mime),
                         ],
+                        config=DEFUALT_CONFIG,
                     )
 
                 elif mime in VIDEO_MIMES:  # if video
@@ -267,6 +265,7 @@ class MyClient(discord.Client):
                                 types.Part(text=user_message),
                             ]
                         ),
+                        config=DEFUALT_CONFIG,
                     )
 
                 else:
@@ -292,6 +291,7 @@ class MyClient(discord.Client):
                             types.Part(text=text),
                         ]
                     ),
+                    config=DEFUALT_CONFIG,
                 )
 
                 # add this response to the multi turn chat history manually
