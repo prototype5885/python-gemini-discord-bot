@@ -53,6 +53,7 @@ IMAGE_MIMES = (
 DEFUALT_CONFIG = types.GenerateContentConfig(
     safety_settings=SAFETY_SETTINGS,
     thinking_config=types.ThinkingConfig(thinking_budget=0),
+    maxOutputTokens=2048,
 )
 
 
