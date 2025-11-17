@@ -308,11 +308,15 @@ class MyClient(discord.Client):
             # delete older messages
             self.chat = trim_chat(self.client, self.chat)
 
-            # forward gemini's response to discord
-            CHUNK_SIZE = 2000
-            for i in range(0, len(response.text), CHUNK_SIZE):
-                chunk = response.text[i : i + CHUNK_SIZE]
-                await message.reply(chunk, mention_author=True)
+            if response.text:
+                # forward gemini's response to discord
+                CHUNK_SIZE = 2000
+                for i in range(0, len(response.text), CHUNK_SIZE):
+                    chunk = response.text[i : i + CHUNK_SIZE]
+                    await message.reply(chunk, mention_author=True)
+            else:
+                print(response)
+                await message.reply("Gemini didn't respond", mention_author=True)
 
         except Exception as e:
             try:
