@@ -1,10 +1,12 @@
 import os
 import sys
-from dotenv import load_dotenv
+
 import discord
+import requests
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-import requests
+
 # from threading import Timer
 
 load_dotenv()
@@ -53,7 +55,7 @@ IMAGE_MIMES = (
 DEFUALT_CONFIG = types.GenerateContentConfig(
     safety_settings=SAFETY_SETTINGS,
     thinking_config=types.ThinkingConfig(thinking_budget=0),
-    maxOutputTokens=2048,
+    max_output_tokens=2048,
 )
 
 
