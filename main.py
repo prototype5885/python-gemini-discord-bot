@@ -56,6 +56,7 @@ DEFUALT_CONFIG = types.GenerateContentConfig(
     safety_settings=SAFETY_SETTINGS,
     thinking_config=types.ThinkingConfig(thinking_budget=0),
     max_output_tokens=2048,
+    tools=[types.Tool(google_search=types.GoogleSearch())]
 )
 
 
