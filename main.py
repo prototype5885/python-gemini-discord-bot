@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 
 import discord
@@ -312,10 +313,12 @@ class MyClient(discord.Client):
             self.chat = trim_chat(self.client, self.chat)
 
             if response.text:
+                # don't quote discord ID
+                response_text =  re.sub(r'`(<@[0-9]+>)`', r'\1', response.text)
                 # forward gemini's response to discord
                 CHUNK_SIZE = 2000
-                for i in range(0, len(response.text), CHUNK_SIZE):
-                    chunk = response.text[i : i + CHUNK_SIZE]
+                for i in range(0, len(response_text), CHUNK_SIZE):
+                    chunk = response_text[i : i + CHUNK_SIZE]
                     await message.reply(chunk, mention_author=True)
             else:
                 print(response)
