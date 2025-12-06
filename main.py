@@ -347,12 +347,7 @@ class MyClient(discord.Client):
                     # workaround as new client requires new chat
                     self.chat = trim_chat(self.client, self.chat)
 
-                    await message.reply(
-                        "Api key limit reached, changed to new, continue spamming",
-                        mention_author=True,
-                    )
-                else:
-                    await message.reply(error_text, mention_author=True)
+                await message.reply(error_text, mention_author=True)
             except Exception as discord_error:
                 print(discord_error)
 
