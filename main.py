@@ -12,7 +12,7 @@ from google.genai import types
 
 load_dotenv()
 
-MODEL_NAME = "gemini-2.5-flash-lite"
+MODEL_NAME = "gemma-3-27b-it"
 MAX_HISTORY_SIZE = 20
 SAFETY_SETTINGS = [
     types.SafetySetting(
@@ -55,24 +55,18 @@ IMAGE_MIMES = (
 
 DEFUALT_CONFIG = types.GenerateContentConfig(
     safety_settings=SAFETY_SETTINGS,
-    thinking_config=types.ThinkingConfig(thinking_budget=0),
+    # thinking_config=types.ThinkingConfig(thinking_budget=0),
     max_output_tokens=2048,
-    tools=[types.Tool(google_search=types.GoogleSearch())]
+    # tools=[types.Tool(google_search=types.GoogleSearch())]
 )
 
 
 DEFAULT_PROMPT = "short to medium sized answer"
 
 
-def new_api_key(current_api_key, api_keys):
-    index = api_keys.index(current_api_key)
-    next_index = (index + 1) % len(api_keys)
-    print(f"Gemini api key index was set to {next_index}")
-    return api_keys[next_index]
 
-
-def new_client(new_api_key):
-    return genai.Client(api_key=new_api_key)
+def new_client():
+    return genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 
 def new_chat(client):
@@ -99,19 +93,9 @@ def undo_message(client, chat):
 
 
 class MyClient(discord.Client):
-    api_keys = []
-
-    for i in range(32):
-        env_api_key = os.getenv(f"GEMINI_API_KEY{i}")
-        if env_api_key:
-            api_keys.append(env_api_key)
-
-    print(f"Found {len(api_keys)} gemini api keys!")
-
     prompt: str = DEFAULT_PROMPT
 
-    current_api_key = api_keys[0]
-    client = new_client(current_api_key)
+    client = new_client()
     chat = new_chat(client)
 
     # reset_timer = None
@@ -124,6 +108,9 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
         try:
+            if not self.user: # to stop pylance from crying
+                return
+            
             if message.author.id == self.user.id:
                 return
 
@@ -144,7 +131,7 @@ class MyClient(discord.Client):
 
                 response = ""
                 for msg in self.chat.get_history():
-                    text = msg.parts[0].text[:64].replace("\n", " ")
+                    text = msg.parts[0].text[:64].replace("\n", " ") # type: ignore
                     if len(text) >= 64:
                         text += "..."
                     response += f"{msg.role}: {text}\n\n"
@@ -186,7 +173,7 @@ class MyClient(discord.Client):
                     self.chat = undo_message(self.client, self.chat)
                     last_message = (
                         self.chat.get_history()[-1]
-                        .parts[0]
+                        .parts[0] # type: ignore
                         .text[:128]
                         .replace("\n", " ")
                     )
@@ -328,24 +315,12 @@ class MyClient(discord.Client):
             try:
                 error_text = str(e)
                 error_text = error_text.replace(
-                    self.current_api_key, "GEMINI_TOKEN_HERE"
+                    os.environ["GEMINI_API_KEY"], "GEMINI_TOKEN_HERE"
                 )
                 error_text = error_text.replace(
-                    os.getenv("DISCORD_TOKEN"), "DISCORD_TOKEN_HERE"
+                    os.environ["DISCORD_TOKEN"], "DISCORD_TOKEN_HERE"
                 )
                 print(error_text)
-
-                if "429 RESOURCE_EXHAUSTED" in error_text:
-                    # change api key
-                    self.current_api_key = new_api_key(
-                        self.current_api_key, self.api_keys
-                    )
-
-                    # set new api key to client
-                    self.client = new_client(self.current_api_key)
-
-                    # workaround as new client requires new chat
-                    self.chat = trim_chat(self.client, self.chat)
 
                 await message.reply(error_text, mention_author=True)
             except Exception as discord_error:
@@ -356,4 +331,4 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = MyClient(intents=intents)
-client.run(os.getenv("DISCORD_TOKEN"))
+client.run(os.environ["DISCORD_TOKEN"])
