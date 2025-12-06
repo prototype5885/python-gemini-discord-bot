@@ -8,3 +8,7 @@ GEMINI_API_KEY0
 GEMINI_API_KEY1
 ..
 GEMINI_API_KEY31
+
+command to run:
+
+uv run main.py
