@@ -309,7 +309,7 @@ class MyClient(discord.Client):
                     await message.reply(chunk, mention_author=True)
             else:
                 print(response)
-                await message.reply("Gemini didn't respond", mention_author=True)
+                await message.reply("Bot didn't respond", mention_author=True)
 
         except Exception as e:
             try:
