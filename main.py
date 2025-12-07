@@ -139,11 +139,11 @@ class MyClient(discord.Client):
                 await message.reply(response, mention_author=True)
                 return
 
-            if user_message in ("!new", "!neu", "!resetgemini"):
+            if user_message in ("!new", "!neu", "!resetgemma"):
                 print("Reseting history...")
                 self.prompt = DEFAULT_PROMPT
                 self.chat = new_chat(self.client)
-                await message.reply("Cleared gemini conversation!", mention_author=True)
+                await message.reply("Cleared gemma conversation!", mention_author=True)
                 return
 
             if user_message.startswith("!prompt"):
@@ -302,14 +302,14 @@ class MyClient(discord.Client):
             if response.text:
                 # don't quote discord ID
                 response_text =  re.sub(r'`(<@[0-9]+>)`', r'\1', response.text)
-                # forward gemini's response to discord
+                # forward gemma's response to discord
                 CHUNK_SIZE = 2000
                 for i in range(0, len(response_text), CHUNK_SIZE):
                     chunk = response_text[i : i + CHUNK_SIZE]
                     await message.reply(chunk, mention_author=True)
             else:
                 print(response)
-                await message.reply("Bot didn't respond", mention_author=True)
+                await message.reply("Gemma didn't respond", mention_author=True)
 
         except Exception as e:
             try:
