@@ -13,7 +13,7 @@ from google.genai import types
 load_dotenv()
 
 MODEL_NAME = "gemma-3-27b-it"
-MAX_HISTORY_SIZE = 20
+MAX_HISTORY_SIZE = 10
 SAFETY_SETTINGS = [
     types.SafetySetting(
         category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
