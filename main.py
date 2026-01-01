@@ -133,6 +133,18 @@ class MyClient(discord.Client):
         await self.set_status("Processing text...")
         return await self.send_post_request(asdict(self.history))
 
+    async def send_text_message_gemini(self, message: str):
+        self.add_to_history(message, "user")
+
+        print("Sending text message to gemini...")
+        await self.set_status("Processing text...")
+
+        data = asdict(self.history)
+        data["tools"] = [{"google_search": {}}]
+
+        temp_url = self.url.replace(self.model, GEMINI_MODEL)
+        return await self.send_post_request(data, temp_url)
+
     async def send_picture_video(self, message: str, image: bytes, mime: str):
         self.add_to_history(message, "user")
 
@@ -289,7 +301,12 @@ class MyClient(discord.Client):
                     if replied_message.author.id == self.user.id:
                         reply = True
 
-                if not mentioned and not question_mark and not reply:
+                gemini: bool = False
+                if user_message.startswith("!gemini"):
+                    user_message = user_message.removeprefix("!gemini").strip()
+                    gemini = True
+
+                if not mentioned and not question_mark and not reply and not gemini:
                     return
 
                 await message.channel.typing()
@@ -315,6 +332,8 @@ class MyClient(discord.Client):
                 # elif user_message.startswith(("https://www.youtube.com/", "https://youtu.be")):
                 #     link, text = user_message.split(" ", 1)
                 #     response = await self.send_youtube_link(text, link)
+                elif gemini:
+                    response = await self.send_text_message_gemini(user_message)
                 else:
                     response = await self.send_text_message(user_message)
 
